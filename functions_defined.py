@@ -148,6 +148,8 @@ def gaussian(x):
     x=x.replace([np.inf, -np.inf], np.nan)
     mean = x.mean()
     std = x.std()
+    if std == 0.0 or std ==np.nan or std==np.inf:
+        std=1
     return (x - mean) / std, mean, std
 
 #create lagged data and normalize
