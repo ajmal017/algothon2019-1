@@ -7,10 +7,9 @@ from req_imports import *
 #import defined functions
 from functions_defined import *
 
-
-
-
-    
+import quandl
+quandl.ApiConfig.api_key = 'VxZss34XgZXejjDqgZJr'
+   
 
 ######################################## Variable Initialization ########################################
 
