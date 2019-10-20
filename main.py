@@ -22,7 +22,7 @@ start_date='01-01-1980'
 end_date='14-06-2019'
 
 #stock name
-stock_name='AAPL'
+stock_name='MSFT'
 
 #return period
 default_return_period=1
@@ -44,7 +44,7 @@ multinomial_ret=1
 ########################### Sourcing Data, obtaining features  ############################################
 
 #Getting Historical Data
-data = quandl.get('EOD/AAPL', start_date=start_date, end_date=end_date)
+data = quandl.get('EOD/'+stock_name, start_date=start_date, end_date=end_date)
 data=data[['Adj_Open','Adj_Close','Adj_High','Adj_Low','Adj_Volume']]
 #data = pd.DataFrame(web.DataReader(stock_name, data_source='yahoo',start=start_date, end=end_date))
 
@@ -62,32 +62,32 @@ data['rs'] = (data['r'] - data['r'].mean()) / data['r'].std()
 data['d'] = np.where(data['r'] > 0, 1, 0)
 if multinomial_ret:
     data['d']=0
-#data['c-o'] = data['close'] - data['open']
+data['c-o'] = data['close'] - data['open']
 ##data['u-d'] = np.where(data['close'] - data['open'] > 0, 1, 0)
-#data['h-l'] = data['high'] - data['low']
-#data['h-o'] = data['high'] - data['open']
-#data['o-l'] = data['open'] - data['low']
-#data['h-c'] = data['high'] - data['close']
-#data['c-l'] = data['close'] - data['low']
+data['h-l'] = data['high'] - data['low']
+data['h-o'] = data['high'] - data['open']
+data['o-l'] = data['open'] - data['low']
+data['h-c'] = data['high'] - data['close']
+data['c-l'] = data['close'] - data['low']
 
 
 #call functions to create features
-#data=MACD(data,3,6)
-#data=MACD(data,12,26)
-#data=EMA(data,5)
-#data=EMA(data,18)
+data=MACD(data,3,6)
+data=MACD(data,12,26)
+data=EMA(data,5)
+data=EMA(data,18)
 #data=EMA(data,50)
 #data=ATR(data,10)
 #data=VA(data,5)
 #data=MOM(data,1)
 #data=MOM(data,5)
 ##data=RSI(data,1)
-#data=RSI(data,5)
-#data=RSI(data,18)
+data=RSI(data,5)
+data=RSI(data,18)
 ##data=RSI(data,50)
 #data=STOK(data)
-#data=zy_vol(data,5)
-#data=zy_vol(data,18)
+data=zy_vol(data,5)
+data=zy_vol(data,18)
 #data=ForceIndex(data,1)
 #data=ForceIndex(data,5)
 
@@ -100,10 +100,10 @@ ld = len(data)
 ld
 
 
-data=data['r']
+#data=data['r']
 start = '2014-07-18 12:33:49 +0000'
 
-fb_dm=quandl.get_table('SMA/FBD', date = {'gte': start}, brand_ticker='AAPL', paginate=True)
+fb_dm=quandl.get_table('SMA/FBD', date = {'gte': start}, brand_ticker=stock_name, paginate=True)
 fb_dm=fb_dm.loc[fb_dm['geography']=='Worldwide']
 #fb_dm=fb_dm.loc[fb_dm['sector']!='Non Profits']
 #fb_dm=fb_dm.set_index('date');
