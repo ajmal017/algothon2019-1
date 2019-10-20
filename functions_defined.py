@@ -231,3 +231,16 @@ def plot_confusion_matrix(y_true, y_pred, classes,
                     color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
     return ax
+
+# Drawdown and Sharpe
+def calc_sharpe(returns, rfr = 0.02, window = 252):
+    rfr_daily = rfr / 252 #risk free rate
+
+    annualised_sharpe = np.sqrt(252) * (returns.rolling(window).mean() - rfr_daily) / returns.rolling(window).std()
+    annualised_sharpe = annualised_sharpe.replace([np.inf, -np.inf], np.nan)
+    
+    return annualised_sharpe
+
+def drawdown(returns):
+    return returns.cumsum() - returns.cumsum().cummax()
+
