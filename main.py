@@ -7,9 +7,10 @@ from req_imports import *
 #import defined functions
 from functions_defined import *
 
-import quandl
-quandl.ApiConfig.api_key = 'VxZss34XgZXejjDqgZJr'
-   
+
+
+
+    
 
 ######################################## Variable Initialization ########################################
 
@@ -21,7 +22,7 @@ start_date='01-01-1980'
 end_date='14-06-2019'
 
 #stock name
-stock_name='MSFT'
+stock_name='ICE'
 
 #return period
 default_return_period=1
@@ -76,11 +77,11 @@ data=MACD(data,12,26)
 data=EMA(data,5)
 data=EMA(data,18)
 #data=EMA(data,50)
-#data=ATR(data,10)
-#data=VA(data,5)
+data=ATR(data,10)
+data=VA(data,5)
 #data=MOM(data,1)
 #data=MOM(data,5)
-##data=RSI(data,1)
+#data=RSI(data,1)
 data=RSI(data,5)
 data=RSI(data,18)
 ##data=RSI(data,50)
@@ -149,6 +150,7 @@ else:
     clfi=np.array(clfi)-3 
     y_true=np.array(test['d'])-3
 ################################# LSTM ###################################
+
 
 
 
@@ -402,12 +404,12 @@ sum(test['p'].diff() != 0)
 test['p'].value_counts()
 
 conf_mat = confusion_matrix(test['d'], test['p'])
-print(classification_report(test['d'], test['p']))
+#print(classification_report(test['d'], test['p']))
 
 
-plot_confusion_matrix(y_true, test['p'], classes=clfi,title='Confusion matrix SVM')
+#plot_confusion_matrix(y_true, test['p'], classes=clfi,title='Confusion matrix SVM')
 
-print(conf_mat)
+#print(conf_mat)
 
 test[['r', 's_svm']].cumsum().apply(np.exp).plot(figsize=(10, 6),title="SVM performance of strategy on testing set")
 
@@ -436,11 +438,11 @@ print("5-fold crossvalidation accuracy: %.4f" % (crossval.mean())) #average accu
 
 
 conf_mat = confusion_matrix(test['d'], crossval_predict)
-print(classification_report(test['d'], crossval_predict))
+#print(classification_report(test['d'], crossval_predict))
 
-print(conf_mat)
+#print(conf_mat)
 
-plot_confusion_matrix(test['d'], crossval_predict, classes=clfi,title='Confusion matrix LOGISTIC')
+#plot_confusion_matrix(test['d'], crossval_predict, classes=clfi,title='Confusion matrix LOGISTIC')
 test['p'] = crossval_predict
 if len(clfi)<2:
     test['p'] = np.where(test['p'] > 0, 1, -1)
@@ -471,11 +473,11 @@ crossval_predict = model_selection.cross_val_predict(naivebayes, test[cols], tes
 print("5-fold crossvalidation accuracy: %.4f" % (crossval.mean())) #average accuracy
 
 conf_mat = confusion_matrix(test['d'], crossval_predict)
-print(classification_report(test['d'], crossval_predict))
+#print(classification_report(test['d'], crossval_predict))
 
-print(conf_mat)
+#print(conf_mat)
 
-plot_confusion_matrix(test['d'], crossval_predict, classes=clfi,title='Confusion matrix NAIVE BAYES')
+#plot_confusion_matrix(test['d'], crossval_predict, classes=clfi,title='Confusion matrix NAIVE BAYES')
 test['p'] = crossval_predict
 
 if len(clfi)<2:
@@ -491,22 +493,32 @@ test['p'].value_counts()
 
 test[['r', 's_nb']].cumsum().apply(np.exp).plot(figsize=(10, 6),title="BAYEES performance of strategy on testing set")
 
-test[['r','s_lstm','s_ann','s_ada','s_dtr', 's_svm','s_xgb', 's_nb','s_logistic']].sum().apply(np.exp)
+gghh=test[['r','s_lstm','s_ann','s_ada','s_dtr', 's_svm','s_xgb', 's_nb','s_logistic']].sum().apply(np.exp)
 
-test[['r','s_lstm','s_ann','s_ada','s_dtr', 's_svm','s_xgb', 's_nb','s_logistic']].cumsum().apply(np.exp).plot(figsize=(10, 6),title="LSTM, ANN, SVM, XGBoost, DT Reg, ADABoost, BAYEES & LOGISTIC performance of strategy on testing set")
+#test[['r','s_lstm','s_ann','s_ada','s_dtr', 's_svm','s_xgb', 's_nb','s_logistic']].cumsum().apply(np.exp).plot(figsize=(10, 6),title="LSTM, ANN, SVM, XGBoost, DT Reg, ADABoost, BAYEES & LOGISTIC performance of strategy on testing set")
 
 
-# Drawdown and Sharpe
-def calc_sharpe(returns, rfr = 0.02, window = 252):
-    rfr_daily = rfr / 252 #risk free rate
+cols_sele = []
+if gghh.loc['s_lstm']>gghh.loc['r']:
+    cols_sele.append('s_lstm')
+if gghh.loc['s_ann']>gghh.loc['r']:
+    cols_sele.append('s_ann')
+if gghh.loc['s_ada']>gghh.loc['r']:
+    cols_sele.append('s_ada')
+if gghh.loc['s_dtr']>gghh.loc['r']:
+    cols_sele.append('s_dtr')
+if gghh.loc['s_svm']>gghh.loc['r']:
+    cols_sele.append('s_svm')
+if gghh.loc['s_xgb']>gghh.loc['r']:
+    cols_sele.append('s_xgb')
+if gghh.loc['s_nb']>gghh.loc['r']:
+    cols_sele.append('s_nb')
+if gghh.loc['s_logistic']>gghh.loc['r']:
+    cols_sele.append('s_logistic')
 
-    annualised_sharpe = np.sqrt(252) * (returns.rolling(window).mean() - rfr_daily) / returns.rolling(window).std()
-    annualised_sharpe = annualised_sharpe.replace([np.inf, -np.inf], np.nan)
-    
-    return annualised_sharpe
 
-def drawdown(returns):
-    return returns.cumsum() - returns.cumsum().cummax()
+cols_sele.append('r')
 
-calc_sharpe(returns, 0.02, 30).plot(figsize = (10, 6), title = "Sharpe")
-drawdown(returns).plot(figsize = (10, 6), title = "Drawdown")
+calc_sharpe(test[cols_sele], 0.02, 30).plot(figsize = (10, 6), title = "Sharpe")
+drawdown(test[cols_sele]).plot(figsize = (10, 6), title = "Drawdown")
+test[cols_sele].cumsum().apply(np.exp).plot(figsize=(10, 6),title="performance of strategy on testing set")
