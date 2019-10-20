@@ -497,3 +497,17 @@ test[['r','s_lstm','s_ann','s_ada','s_dtr', 's_svm','s_xgb', 's_nb','s_logistic'
 test[['r','s_lstm','s_ann','s_ada','s_dtr', 's_svm','s_xgb', 's_nb','s_logistic']].cumsum().apply(np.exp).plot(figsize=(10, 6),title="LSTM, ANN, SVM, XGBoost, DT Reg, ADABoost, BAYEES & LOGISTIC performance of strategy on testing set")
 
 
+# Drawdown and Sharpe
+def calc_sharpe(returns, rfr = 0.02, window = 252):
+    rfr_daily = rfr / 252 #risk free rate
+
+    annualised_sharpe = np.sqrt(252) * (returns.rolling(window).mean() - rfr_daily) / returns.rolling(window).std()
+    annualised_sharpe = annualised_sharpe.replace([np.inf, -np.inf], np.nan)
+    
+    return annualised_sharpe
+
+def drawdown(returns):
+    return returns.cumsum() - returns.cumsum().cummax()
+
+calc_sharpe(returns, 0.02, 30).plot(figsize = (10, 6), title = "Sharpe")
+drawdown(returns).plot(figsize = (10, 6), title = "Drawdown")
